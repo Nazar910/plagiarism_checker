@@ -18,3 +18,7 @@ pip3 install --no-cache-dir -r requirements_dev.txt
 ```
 python3 -m unittest discover
 ```
+- run one test
+```
+python3 -m unittest test.string_comparer.test_simhash.TestSimhash.test_return_true_when_similar
+```
