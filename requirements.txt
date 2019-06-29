@@ -4,3 +4,6 @@ inscriptis
 sklearn
 Flask
 pyjwt
+bcrypt
+pymongo
+Flask-PyMongo

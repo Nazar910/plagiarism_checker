@@ -1,7 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, abort, g
 import jwt
+import os
+from flask_pymongo import PyMongo
+from src.services import UserService
 app = Flask(__name__)
-JWT_SECRET = 'e2c10b4949aa6ca3913e2feab7964fc8'
+JWT_SECRET = os.getenv('JWT_SECRET')
+assert JWT_SECRET
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+assert ADMIN_EMAIL
+ADMIN_PASS = os.getenv('ADMIN_PASS')
+assert ADMIN_PASS
+app.config["MONGO_URI"] = os.getenv('MONGO_URI')
+mongo = PyMongo(app)
+
+@app.before_first_request
+def ensure_admin():
+    service = UserService(mongo.db.users)
+    service.ensure_admin_user(ADMIN_EMAIL, ADMIN_PASS)
 
 def allow_without_auth(func):
     func._allow_without_auth = True
@@ -17,7 +32,7 @@ def allow_for_roles(roles):
     return _allow_for_roles
 
 @app.before_request
-def check_end_point():
+def check_endpoint():
     if request.endpoint not in app.view_functions:
         abort(404)
 
@@ -41,13 +56,17 @@ def check_auth():
     except Exception:
         return render_template('login.html')
 
-@app.route('/', methods=['POST'])
-@allow_for_roles(['admin'])
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
 @app.route('/api/auth', methods=['POST'])
 @allow_without_auth
 def get_auth_header():
-    user_obj = {'name': 'John', 'role': 'admin'}
-    return jwt.encode(user_obj, JWT_SECRET, algorithm='HS256')
+    service = UserService(mongo.db.users)
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
+    user = service.find_by_email_and_password(email, password)
+    user['_id'] = str(user['_id'])
+    return jwt.encode(user, JWT_SECRET, algorithm='HS256')

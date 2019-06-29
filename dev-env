@@ -1,0 +1,6 @@
+JWT_SECRET=e2c10b4949aa6ca3913e2feab7964fc8
+FLASK_ENV=development
+FLASK_APP=./src/server.py
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASS=d4afd156a315606c
+MONGO_URI=mongodb://localhost/plagiarism_db
