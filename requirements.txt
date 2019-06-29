@@ -2,3 +2,5 @@ simhash
 google
 inscriptis
 sklearn
+Flask
+pyjwt
