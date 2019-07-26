@@ -2,3 +2,4 @@ __pycache__
 *.pyc
 .vscode
 plagiarism_checker_env
+node_modules

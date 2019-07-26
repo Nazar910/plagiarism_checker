@@ -5,6 +5,36 @@
     <title>Login</title>
 </head>
 <body>
-    Login
+    <form id="login-form">
+        <input id="email" type="email" name="email"/><br/>
+        <input id="password" type="password" name="password"/><br/>
+        <button id="btn-submit" type="submit">Submit</button>
+    </form>
+    <script>
+        async function postData(email, password) {
+            const result = await fetch('/api/auth', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email, password
+                })
+            });
+            const body = await result.json();
+            console.log('Done with body', body);
+            localStorage.setItem('jwt-token', body.token);
+            document.location.href = '/';
+        }
+        window.onload = () => {
+            const btn = document.getElementById('btn-submit');
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                postData(email, password);
+            }
+        };
+    </script>
 </body>
 </html>

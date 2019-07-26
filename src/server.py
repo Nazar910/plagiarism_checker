@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, abort, g
-import jwt
 import os
+from flask import Flask, render_template, request, redirect, url_for, abort, g, jsonify, send_from_directory
+import jwt
 from flask_pymongo import PyMongo
 from src.services import UserService
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 JWT_SECRET = os.getenv('JWT_SECRET')
 assert JWT_SECRET
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
@@ -54,11 +54,17 @@ def check_auth():
         result = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         g.decoded = result
     except Exception:
-        return render_template('login.html')
+        abort(401)
 
 @app.route('/', methods=['GET'])
+@allow_without_auth
 def index():
     return render_template('index.html')
+
+@app.route('/js-bundle')
+@allow_without_auth
+def send_js():
+    return send_from_directory(app.static_folder, 'frontend/dist/index-bundle.js')
 
 @app.route('/api/auth', methods=['POST'])
 @allow_without_auth
@@ -68,5 +74,8 @@ def get_auth_header():
     email = payload['email']
     password = payload['password']
     user = service.find_by_email_and_password(email, password)
+    if user is None:
+        abort(401)
     user['_id'] = str(user['_id'])
-    return jwt.encode(user, JWT_SECRET, algorithm='HS256')
+    token = jwt.encode(user, JWT_SECRET, algorithm='HS256')
+    return jsonify({'token': token.decode('utf-8')})
