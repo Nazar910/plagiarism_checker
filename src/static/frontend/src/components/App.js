@@ -12,21 +12,19 @@ class App extends Component {
         super(...args);
         this.state = {
             isLoggedIn: false,
-            isLoading: true,
-            token: ''
+            isLoading: true
         };
         this.checkoutUser = this.checkoutUser.bind(this);
     }
 
     async updateToken(newToken) {
-        this.setState({ token: newToken });
-        await this.checkoutUser();
+        await this.checkoutUser(newToken);
     }
 
-    async checkoutUser() {
-        const { token } = this.state;
+    async checkoutUser(token) {
         try {
             await getProfile({ token });
+            localStorage.setItem('jwt_token', token);
             this.setState({
                 isLoading: false,
                 isLoggedIn: true
@@ -41,7 +39,8 @@ class App extends Component {
     }
 
     async componentDidMount() {
-        await this.checkoutUser();
+        const token = localStorage.getItem('jwt_token');
+        await this.checkoutUser(token);
     }
 
     render() {
