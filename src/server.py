@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, abort, g, jsonify, send_from_directory
+from flask import Flask, render_template, request, abort, g, jsonify, send_from_directory
 import jwt
 from flask_pymongo import PyMongo
 from src.services import UserService
@@ -60,6 +60,13 @@ def check_auth():
 @allow_without_auth
 def index():
     return render_template('index.html')
+
+@app.route('/api/profile', methods=['GET'])
+def get_profile():
+    user = g.decoded
+    if user is None:
+        abort(401)
+    return jsonify({'user': user})
 
 @app.route('/js-bundle')
 @allow_without_auth
