@@ -16,13 +16,14 @@ async function getJson (args = {}) {
 }
 
 async function postJson (args = {}) {
-    const { body, url } = args;
+    const { body, url, token } = args;
     assert.ok(body, 'Body is required');
     assert.ok(url, 'Url is required');
     const r = await fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
         },
         body: JSON.stringify(body)
     });
@@ -49,4 +50,16 @@ export async function postLogin ({ email, password }) {
         }
     });
     return token;
+}
+
+export async function checkForPlagiarism ({ token, text }) {
+    assert.ok(text, 'Text is required');
+    assert.ok(token, 'Token is required');
+    return postJson({
+        url: '/api/check-for-plagiarism',
+        body: {
+            text
+        },
+        token
+    });
 }

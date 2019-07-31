@@ -26,3 +26,10 @@ class UserService(Service):
             'role': 'admin'
         }
         self.coll.update_one({'email': email}, {'$set': admin}, upsert=True)
+
+class TextService(Service):
+    def check_text_for_plagiarism(self, text):
+        # find 3 most popular words
+        # google each word 5 links
+        # count cossine similarity for each
+        return []

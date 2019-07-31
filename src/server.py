@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, abort, g, jsonify, send_from_directory
 import jwt
 from flask_pymongo import PyMongo
-from src.services import UserService
+from src.services import UserService, TextService
 app = Flask(__name__, static_folder='static')
 JWT_SECRET = os.getenv('JWT_SECRET')
 assert JWT_SECRET
@@ -86,3 +86,9 @@ def get_auth_header():
     user['_id'] = str(user['_id'])
     token = jwt.encode(user, JWT_SECRET, algorithm='HS256')
     return jsonify({'token': token.decode('utf-8')})
+
+@app.route('/api/check-for-plagiarism', methods=['POST'])
+def check_for_plagiarism():
+    service = TextService(mongo.db.texts)
+    payload = request.get_json()
+    return jsonify(service.check_text_for_plagiarism(payload['text']))

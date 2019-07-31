@@ -4,8 +4,9 @@ import 'regenerator-runtime';
 import '../styles/App.css';
 
 import LoginPage from './Login';
+import ProfilePage from './Profile';
 
-import { getProfile } from './api';
+import * as api from './api';
 
 class App extends Component {
     constructor(...args) {
@@ -23,7 +24,7 @@ class App extends Component {
 
     async checkoutUser(token) {
         try {
-            await getProfile({ token });
+            await api.getProfile({ token });
             localStorage.setItem('jwt_token', token);
             this.setState({
                 isLoading: false,
@@ -43,13 +44,17 @@ class App extends Component {
         await this.checkoutUser(token);
     }
 
+    async checkForPlagiarism (text) {
+        return api.checkForPlagiarism({ text, token: localStorage.getItem('jwt_token') });
+    }
+
     render() {
         return (
             <div>
                 { this.state.isLoading
                     ? <div>Loading</div>
                     : this.state.isLoggedIn
-                        ? <div>Profile</div>
+                        ? <ProfilePage checkForPlagiarism={this.checkForPlagiarism.bind(this)}/>
                         : <LoginPage updateToken={this.updateToken.bind(this)} /> }
             </div>
         );
