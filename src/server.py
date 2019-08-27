@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, abort, g, jsonify, send_from_directory
 import jwt
 from flask_pymongo import PyMongo
+from googlesearch import search
 from src.services import UserService, TextService
 app = Flask(__name__, static_folder='static')
 JWT_SECRET = os.getenv('JWT_SECRET')
@@ -12,11 +13,13 @@ ADMIN_PASS = os.getenv('ADMIN_PASS')
 assert ADMIN_PASS
 app.config["MONGO_URI"] = os.getenv('MONGO_URI')
 mongo = PyMongo(app)
+# TODO: may be some issues in multiple threads
+user_service = UserService(mongo.db.users)
+text_service = TextService(mongo.db.texts)
 
 @app.before_first_request
 def ensure_admin():
-    service = UserService(mongo.db.users)
-    service.ensure_admin_user(ADMIN_EMAIL, ADMIN_PASS)
+    user_service.ensure_admin_user(ADMIN_EMAIL, ADMIN_PASS)
 
 def allow_without_auth(func):
     func._allow_without_auth = True
@@ -76,11 +79,10 @@ def send_js():
 @app.route('/api/auth', methods=['POST'])
 @allow_without_auth
 def get_auth_header():
-    service = UserService(mongo.db.users)
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
-    user = service.find_by_email_and_password(email, password)
+    user = user_service.find_by_email_and_password(email, password)
     if user is None:
         abort(401)
     user['_id'] = str(user['_id'])
@@ -89,6 +91,5 @@ def get_auth_header():
 
 @app.route('/api/check-for-plagiarism', methods=['POST'])
 def check_for_plagiarism():
-    service = TextService(mongo.db.texts)
     payload = request.get_json()
-    return jsonify(service.check_text_for_plagiarism(payload['text']))
+    return jsonify(text_service.check_text_for_plagiarism(payload['text']))

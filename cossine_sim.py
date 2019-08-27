@@ -11,10 +11,12 @@ def get_vectors(*strs):
     text = [t for t in strs]
     vectorizer = CountVectorizer(text)
     vectorizer.fit(text)
-    return vectorizer.transform(text).toarray()
+    feature_names = vectorizer.get_feature_names()
+    vectors = vectorizer.transform(text).toarray()
+    return vectors
 
 print(get_cosine_sim(
     'AI is our friend and it has been friendly',
-    'AI and humans have always been friendly',
+    'AI and humans have always been friendly with AI AI AI and and have',
     'AI is not a human'
 ))

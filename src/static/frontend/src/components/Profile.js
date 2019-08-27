@@ -17,6 +17,7 @@ class Profile extends Component {
     async onSubmit() {
         const { text } = this.state;
         const result = await this.props.checkForPlagiarism(text);
+        console.log(result);
         this.setState({ output: result });
     }
 
@@ -24,7 +25,6 @@ class Profile extends Component {
         const { output } = this.state;
         return (
             <div>
-                <div>{ output.map((e, i) => <div id={i}>{e}</div>) }</div>
                 <div className="input-group">
                     <textarea
                         className="form-control"
@@ -34,6 +34,7 @@ class Profile extends Component {
                     >{this.state.text}</textarea>
                 </div>
                 <button className="btn btn-primary" onClick={this.onSubmit.bind(this)}>Підтвердити</button>
+                <div>{ output.map((e, i) => <div key={i}>{e.url + '\n' + e.text}</div>) }</div>
             </div>
         );
     }
