@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PlagiarismResultItem from './PlagiarismResultItem';
 
 class Profile extends Component {
     constructor(...args) {
@@ -23,6 +24,7 @@ class Profile extends Component {
 
     render() {
         const { output } = this.state;
+        // {e.url + '\n' + e.text}
         return (
             <div>
                 <div className="input-group">
@@ -34,7 +36,7 @@ class Profile extends Component {
                     >{this.state.text}</textarea>
                 </div>
                 <button className="btn btn-primary" onClick={this.onSubmit.bind(this)}>Підтвердити</button>
-                <div>{ output.map((e, i) => <div key={i}>{e.url + '\n' + e.text}</div>) }</div>
+                <div>{output.map((e, i) => <PlagiarismResultItem key={i} link={e}></PlagiarismResultItem>) }</div>
             </div>
         );
     }
