@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from src.utils.text_processor import get_topn_words, get_cosine_sim
 
 TOP_WORDS_COUNT = 2
-LINKS_TO_CHECK = 1
+LINKS_TO_CHECK = 2
 
 class Service:
     def __init__(self, collection):
@@ -104,10 +104,9 @@ class TextService(Service):
         texts_to_check = texts_to_check[1:]
         plagirism_coefs_array = plagirism_coefs_array[1:]
 
-        # soup = BeautifulSoup(html_doc, 'html.parser')
         return [{
             'url': links[i].url,
             'text': v,
             'title': links[i].page_title,
             'plagiarism_coef': plagirism_coefs_array[i]
-        } for i, v in enumerate(texts_to_check)]
+        } for i, v in enumerate(texts_to_check) if plagirism_coefs_array[i] >= 0.5]

@@ -3,3 +3,4 @@ __pycache__
 .vscode
 plagiarism_checker_env
 node_modules
+src/static/frontend/dist
