@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PlagiarismResultItem from './PlagiarismResultItem';
+import Textarea from 'react-textarea-autosize';
 
 class Profile extends Component {
     constructor(...args) {
@@ -18,22 +19,20 @@ class Profile extends Component {
     async onSubmit() {
         const { text } = this.state;
         const result = await this.props.checkForPlagiarism(text);
-        console.log(result);
         this.setState({ output: result });
     }
 
     render() {
         const { output } = this.state;
-        // {e.url + '\n' + e.text}
         return (
             <div>
                 <div className="input-group">
-                    <textarea
+                    <Textarea
                         className="form-control"
                         aria-label="With textarea"
                         name="text"
                         onChange={this.onChange.bind(this)}
-                    >{this.state.text}</textarea>
+                    >{this.state.text}</Textarea>
                 </div>
                 <button className="btn btn-primary" onClick={this.onSubmit.bind(this)}>Підтвердити</button>
                 <div>{output.map((e, i) => <PlagiarismResultItem key={i} link={e}></PlagiarismResultItem>) }</div>

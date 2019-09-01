@@ -1,13 +1,14 @@
 import os
 import bcrypt
+import re
 from googlesearch import search
 import urllib.request
-from inscriptis import get_text
+from bs4 import BeautifulSoup
 
 from src.utils.text_processor import get_topn_words, get_cosine_sim
 
 TOP_WORDS_COUNT = 2
-LINKS_TO_CHECK = 1
+LINKS_TO_CHECK = 2
 
 class Service:
     def __init__(self, collection):
@@ -36,9 +37,33 @@ class UserService(Service):
         self.coll.update_one({'email': email}, {'$set': admin}, upsert=True)
 
 class Link:
-    def __init__(self, url, text):
+    def __init__(self, **kwargs):
+        assert kwargs is not None
+        url = kwargs['url']
+        assert url is not None
+        text = kwargs['text']
+        assert text is not None
+        raw_html = kwargs['raw_html']
+        assert raw_html is not None
+        page_title = kwargs['page_title']
+        assert page_title is not None
+
         self.url = url
         self.text = text
+        self.raw_html = raw_html
+        self.page_title = page_title
+
+bs4_tags_blacklist = [
+    '[document]',
+    'noscript',
+    'header',
+    'html',
+    'meta',
+    'head',
+    'input',
+    'script',
+    'style'
+]
 
 class TextService(Service):
     def get_topn_links(self, word, Nlinks):
@@ -46,7 +71,19 @@ class TextService(Service):
         for url in search(word, stop=Nlinks):
             try:
                 html = urllib.request.urlopen(url).read().decode('utf-8')
-                link = Link(url, get_text(html))
+                soup = BeautifulSoup(html, 'html.parser')
+                text = soup.find_all(text=True)
+                output = ''
+
+                for t in text:
+                    if t.parent.name not in bs4_tags_blacklist:
+                        output += '{} '.format(t)
+                link = Link(
+                    url=url,
+                    text=output,
+                    raw_html=html,
+                    page_title=soup.title.string
+                )
                 result.append(link)
             except:
                 pass
@@ -72,5 +109,6 @@ class TextService(Service):
         return [{
             'url': links[i].url,
             'text': v,
+            'title': links[i].page_title,
             'plagiarism_coef': plagirism_coefs_array[i]
         } for i, v in enumerate(texts_to_check) if plagirism_coefs_array[i] >= 0.5]

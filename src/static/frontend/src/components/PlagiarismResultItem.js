@@ -9,8 +9,7 @@ export default class PlagiarismResultItem extends Component {
                     Featured
                 </div>
                 <div className="card-body">
-                    <h5 className="card-title">Page title</h5>
-                    <p className="card-text">{link.text}</p>
+                    <h5 className="card-title">{link.title}</h5>
                     <a href={link.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Follow link</a>
                 </div>
             </div>

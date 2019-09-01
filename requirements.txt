@@ -1,9 +1,8 @@
-simhash
 google
-inscriptis
 sklearn
 Flask
 pyjwt
 bcrypt
 pymongo
 Flask-PyMongo
+beautifulsoup4
