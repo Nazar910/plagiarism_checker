@@ -73,4 +73,4 @@ class TextService(Service):
             'url': links[i].url,
             'text': v,
             'plagiarism_coef': plagirism_coefs_array[i]
-            } for i, v in enumerate(texts_to_check)]
+        } for i, v in enumerate(texts_to_check) if plagirism_coefs_array[i] >= 0.5]
