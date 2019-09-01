@@ -46,11 +46,24 @@ class Link:
         raw_html = kwargs['raw_html']
         assert raw_html is not None
         page_title = kwargs['page_title']
+        assert page_title is not None
 
         self.url = url
         self.text = text
         self.raw_html = raw_html
         self.page_title = page_title
+
+bs4_tags_blacklist = [
+    '[document]',
+    'noscript',
+    'header',
+    'html',
+    'meta',
+    'head',
+    'input',
+    'script',
+    'style'
+]
 
 class TextService(Service):
     def get_topn_links(self, word, Nlinks):
@@ -61,20 +74,9 @@ class TextService(Service):
                 soup = BeautifulSoup(html, 'html.parser')
                 text = soup.find_all(text=True)
                 output = ''
-                blacklist = [
-                    '[document]',
-                    'noscript',
-                    'header',
-                    'html',
-                    'meta',
-                    'head',
-                    'input',
-                    'script',
-                    'style'
-                ]
 
                 for t in text:
-                    if t.parent.name not in blacklist:
+                    if t.parent.name not in bs4_tags_blacklist:
                         output += '{} '.format(t)
                 link = Link(
                     url=url,
