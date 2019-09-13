@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import PlagiarismResultItem from './PlagiarismResultItem';
 import Textarea from 'react-textarea-autosize';
+import Loader from './Loader';
 
 class Profile extends Component {
     constructor(...args) {
         super(...args);
         this.state = {
             text: '',
-            output: []
+            output: [],
+            isLoading: false
         }
     }
 
@@ -18,12 +20,18 @@ class Profile extends Component {
 
     async onSubmit() {
         const { text } = this.state;
+        this.setState({
+            isLoading: true
+        });
         const result = await this.props.checkForPlagiarism(text);
-        this.setState({ output: result });
+        this.setState({
+            output: result,
+            isLoading: false
+        });
     }
 
     render() {
-        const { output } = this.state;
+        const { output, isLoading } = this.state;
         return (
             <div>
                 <div className="input-group">
@@ -35,7 +43,12 @@ class Profile extends Component {
                     >{this.state.text}</Textarea>
                 </div>
                 <button className="btn btn-primary" onClick={this.onSubmit.bind(this)}>Підтвердити</button>
-                <div>{output.map((e, i) => <PlagiarismResultItem key={i} link={e}></PlagiarismResultItem>) }</div>
+                <br/>
+                {
+                    isLoading
+                        ? <Loader />
+                        : <div>{output.map((e, i) => <PlagiarismResultItem key={i} link={e}></PlagiarismResultItem>)}</div>
+                }
             </div>
         );
     }
