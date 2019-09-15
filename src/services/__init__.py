@@ -4,11 +4,12 @@ import re
 from googlesearch import search
 import urllib.request
 from bs4 import BeautifulSoup
+from bson import ObjectId
 
 from src.utils.text_processor import get_topn_words, get_cosine_sim
 
-TOP_WORDS_COUNT = 2
-LINKS_TO_CHECK = 2
+# TOP_WORDS_COUNT = 2
+LINKS_TO_CHECK = 4
 
 class Service:
     def __init__(self, collection):
@@ -35,6 +36,9 @@ class UserService(Service):
             'role': 'admin'
         }
         self.coll.update_one({'email': email}, {'$set': admin}, upsert=True)
+
+    def find_by_id(self, id):
+        return self.coll.find_one({'_id': ObjectId(id)})
 
 class Link:
     def __init__(self, **kwargs):
@@ -66,11 +70,12 @@ bs4_tags_blacklist = [
 ]
 
 class TextService(Service):
-    def get_topn_links(self, word, Nlinks):
+    def get_topn_links(self, seach_str, Nlinks):
         result = []
-        for url in search(word, stop=Nlinks):
+        for url in search(seach_str, stop=Nlinks):
             try:
-                html = urllib.request.urlopen(url).read().decode('utf-8')
+                response = urllib.request.urlopen(url).read()
+                html = response.decode('utf-8')
                 soup = BeautifulSoup(html, 'html.parser')
                 text = soup.find_all(text=True)
                 output = ''
@@ -85,17 +90,17 @@ class TextService(Service):
                     page_title=soup.title.string
                 )
                 result.append(link)
-            except:
-                pass
+            except Exception as e:
+                print('Got exception')
+                print(e)
         return result
 
-    def check_text_for_plagiarism(self, text):
-        topN_words = get_topn_words(text, TOP_WORDS_COUNT)
-        assert len(topN_words) == TOP_WORDS_COUNT
-
-        links = []
-        for w in topN_words:
-            links = links + self.get_topn_links(w, LINKS_TO_CHECK)
+    def check_text_for_plagiarism(self, title, text):
+        # topN_words = get_topn_words(text, TOP_WORDS_COUNT)
+        # assert len(topN_words) == TOP_WORDS_COUNT
+        links = self.get_topn_links(title, LINKS_TO_CHECK)
+        # for w in topN_words:
+            # links = links + self.get_topn_links(w, LINKS_TO_CHECK)
 
         texts_to_check = [item for item in map(
             lambda l: l.text, links

@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, abort, g, jsonify, send_from_
 import jwt
 from flask_pymongo import PyMongo
 from googlesearch import search
+from flask_expects_json import expects_json
 from src.services import UserService, TextService
 app = Flask(__name__, static_folder='static')
 JWT_SECRET = os.getenv('JWT_SECRET')
@@ -66,9 +67,12 @@ def index():
 
 @app.route('/api/profile', methods=['GET'])
 def get_profile():
-    user = g.decoded
+    if g.decoded is None:
+        abort(401)
+    user = user_service.find_by_id(g.decoded['_id'])
     if user is None:
         abort(401)
+    user['_id'] = str(user['_id'])
     return jsonify({'user': user})
 
 @app.route('/js-bundle')
@@ -89,7 +93,19 @@ def get_auth_header():
     token = jwt.encode(user, JWT_SECRET, algorithm='HS256')
     return jsonify({'token': token.decode('utf-8')})
 
+check_for_plagiarism_schema = {
+    'type': 'object',
+    'properties': {
+        'title': { 'type': 'string' },
+        'text': { 'type': 'string' }
+    },
+    'required': [ 'title', 'text' ]
+}
+
 @app.route('/api/check-for-plagiarism', methods=['POST'])
+@expects_json(check_for_plagiarism_schema)
 def check_for_plagiarism():
     payload = request.get_json()
-    return jsonify(text_service.check_text_for_plagiarism(payload['text']))
+    title = payload['title']
+    text = payload['text']
+    return jsonify(text_service.check_text_for_plagiarism(title, text))
