@@ -15,6 +15,11 @@ async function getJson (args = {}) {
     return await r.json();
 }
 
+const errorsMap = {
+    401: () => new Error('Unauthorized'),
+    400: (msg) => new Error(msg)
+}
+
 async function postJson (args = {}) {
     const { body, url, token } = args;
     assert.ok(body, 'Body is required');
@@ -27,8 +32,8 @@ async function postJson (args = {}) {
         },
         body: JSON.stringify(body)
     });
-    if (r.status === 401) {
-        throw new Error('Unauthorized');
+    if (errorsMap[r.status]) {
+        throw errorsMap[r.status](await r.text());
     }
     return await r.json();
 }
@@ -52,12 +57,14 @@ export async function postLogin ({ email, password }) {
     return token;
 }
 
-export async function checkForPlagiarism ({ token, text }) {
+export async function checkForPlagiarism ({ token, title, text }) {
+    assert.ok(title, 'Title is required');
     assert.ok(text, 'Text is required');
     assert.ok(token, 'Token is required');
     return postJson({
         url: '/api/check-for-plagiarism',
         body: {
+            title,
             text
         },
         token

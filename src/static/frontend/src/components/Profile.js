@@ -2,11 +2,13 @@ import React, { Component } from "react";
 import PlagiarismResultItem from './PlagiarismResultItem';
 import Textarea from 'react-textarea-autosize';
 import Loader from './Loader';
+import OptionalAlert from './OptionalErrorAlert';
 
 class Profile extends Component {
     constructor(...args) {
         super(...args);
         this.state = {
+            title: '',
             text: '',
             output: [],
             isLoading: false
@@ -19,21 +21,37 @@ class Profile extends Component {
     }
 
     async onSubmit() {
-        const { text } = this.state;
+        const { title, text } = this.state;
         this.setState({
             isLoading: true
         });
-        const result = await this.props.checkForPlagiarism(text);
-        this.setState({
-            output: result,
-            isLoading: false
-        });
+        let error = '';
+        try {
+            const result = await this.props.checkForPlagiarism({ title, text });
+            this.setState({
+                output: result,
+                isLoading: false
+            });
+        } catch (e) {
+            error = e.message;
+            this.setState({
+                isLoading: false,
+                error
+            })
+        }
     }
 
     render() {
-        const { output, isLoading } = this.state;
+        const { output, isLoading, error } = this.state;
         return (
             <div>
+                <OptionalAlert msg={error}/>
+                <input
+                    type="text"
+                    className="form-control"
+                    name="title"
+                    value={this.state.title} onChange={this.onChange.bind(this)}
+                /><br/>
                 <div className="input-group">
                     <Textarea
                         className="form-control"
