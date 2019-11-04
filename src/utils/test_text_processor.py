@@ -19,5 +19,14 @@ class TestGetCosineSim(TestCase):
         self.assertAlmostEqual(actual[1], 0.5, 1, '50 percent equality')
         self.assertAlmostEqual(actual[2], 0.3, 1, '30 percent equality')
 
+    def test_check_ukrainian_text(self):
+        texts = [
+            'Великого значення в цей час набули церемоніали, етикет, ушляхетнення способу життя й зовнішнього вигляду людини.',
+            'У цей час великого значення набув етикет, покращення способу життя і вигляду людини',
+        ]
+        actual = get_cosine_sim(texts)[0]
+        self.assertAlmostEqual(actual[0], 1, 2,  '100 percent equality')
+        self.assertAlmostEqual(actual[1], 0.5, 1, '50 percent equality')
+
 if __name__ == '__main__':
     main()

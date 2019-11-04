@@ -8,8 +8,7 @@ from bson import ObjectId
 
 from src.utils.text_processor import get_topn_words, get_cosine_sim
 
-# TOP_WORDS_COUNT = 2
-LINKS_TO_CHECK = 4
+LINKS_TO_CHECK = 15
 
 class Service:
     def __init__(self, collection):
@@ -96,12 +95,7 @@ class TextService(Service):
         return result
 
     def check_text_for_plagiarism(self, title, text):
-        # topN_words = get_topn_words(text, TOP_WORDS_COUNT)
-        # assert len(topN_words) == TOP_WORDS_COUNT
         links = self.get_topn_links(title, LINKS_TO_CHECK)
-        # for w in topN_words:
-            # links = links + self.get_topn_links(w, LINKS_TO_CHECK)
-
         texts_to_check = [item for item in map(
             lambda l: l.text, links
         )]
@@ -116,4 +110,4 @@ class TextService(Service):
             'text': v,
             'title': links[i].page_title,
             'plagiarism_coef': plagirism_coefs_array[i]
-        } for i, v in enumerate(texts_to_check) if plagirism_coefs_array[i] >= 0.5]
+        } for i, v in enumerate(texts_to_check) if plagirism_coefs_array[i] >= 0.2]
