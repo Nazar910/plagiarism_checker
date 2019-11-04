@@ -29,11 +29,12 @@ class Login extends Component {
         const { email, password } = this.state;
         return (
             <form onSubmit={this.handleSubmit}>
+                Введіть ваш логін та пароль:<br/>
                 <div className="form-group">
                     <input type="email" className="form-control" name="email" value={email} onChange={this.onChange} />
                     <input type="password" className="form-control" name="password" value={password} onChange={this.onChange} />
                 </div>
-                <button type="submit" className="btn btn-primary">Submit</button>
+                <button type="submit" className="btn btn-primary">Підтвердити</button>
             </form>
         );
     }

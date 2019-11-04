@@ -45,6 +45,7 @@ class Profile extends Component {
         const { output, isLoading, error } = this.state;
         return (
             <div>
+                Головна сторінка <br/>
                 <OptionalAlert msg={error}/>
                 <input
                     type="text"
@@ -65,7 +66,7 @@ class Profile extends Component {
                 {
                     isLoading
                         ? <Loader />
-                        : <div>{output.map((e, i) => <PlagiarismResultItem key={i} link={e}></PlagiarismResultItem>)}</div>
+                        : <div>{output.map((e, i) => <PlagiarismResultItem key={i} number={i} link={e}></PlagiarismResultItem>)}</div>
                 }
             </div>
         );
