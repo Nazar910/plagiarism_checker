@@ -1,5 +1,8 @@
-google
+numpy
+Cython
+scipy
 sklearn
+google
 Flask
 pyjwt
 bcrypt
