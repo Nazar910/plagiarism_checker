@@ -21,4 +21,5 @@ def get_cosine_sim(strs):
 
 def get_vectors(strs):
     vectorizer = CountVectorizer(ngram_range=(1, 3))
+    # vectorizer = CountVectorizer()
     return vectorizer.fit_transform(strs).toarray()

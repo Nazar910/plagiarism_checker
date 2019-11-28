@@ -105,6 +105,10 @@ class TextService(Service):
         texts_to_check = texts_to_check[1:]
         plagirism_coefs_array = plagirism_coefs_array[1:]
 
+        print()
+        print('Coefs array')
+        print(plagirism_coefs_array)
+        print()
         return [{
             'url': links[i].url,
             'text': v,
